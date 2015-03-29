@@ -119,7 +119,7 @@ function formatData() {
         point.properties.partner = event['Cooperating Partner'];
         $.each(distributionItems, function(itemI, item){
           if(isNaN(parseInt(event[item], 10)) != true){
-            point.properties.totals[item] += parseInt(event[item], 10);
+            point.properties.totals[item] += parseInt(event[item].replace(/,/g , ""), 10);
           }
         });
       }
