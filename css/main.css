@@ -10,11 +10,51 @@ html, body {
 }
 
 #logo-vrcs {
-  position: absolute;
-  left: 14px;
-  top: 14px;
-  height: 80px;
-  z-index: 9999
+  margin: 6px;
+  height: 60px;
+  display:inline-block;
+}
+
+#logo-bar{
+  background: #222222;
+}
+
+#map-title{
+  vertical-align: middle;
+  display: inline-block;
+
+}
+
+
+.title-main{
+  color: #ed1b2e;
+  font-weight:800;
+  font-size: 150%;
+}
+.title-sub{
+  color: #f5f5f5;
+  /*font-size: 90%;*/
+}
+
+.legend {
+    line-height: 20px !important;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
 }
 
 .item-count {

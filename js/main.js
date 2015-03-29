@@ -1,3 +1,20 @@
+var pageHeight = $(window).height();
+var logoBarHeight = $("#logo-bar").height()
+var mapHeight = $(window).height() - logoBarHeight;
+
+$("#map-container").height(mapHeight);
+
+
+var markerIfrc = {
+  fillColor: '#e31a1c',
+  color: '#e31a1c'
+};
+
+var markerFrench = {
+  fillColor: '#6a3d9a',
+  color: '#6a3d9a'
+}
+
 var map = new L.Map("map", {
   center: [-16.741, 168.646],
   zoom: 7,
@@ -23,6 +40,20 @@ var loadingControl = L.Control.loading({
     zoomControl: zoomControl
 });
 map.addControl(loadingControl);
+
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'info legend');
+  div.innerHTML = '<b>Supported by:</b><br>'+
+    '<i class="legend-marker" style="background:' + markerIfrc["fillColor"] + '"></i>' + '<span class="legend-label">IFRC<br></span>' + '' +
+    '<i class="legend-marker" style="background:' + markerFrench["fillColor"] + '"></i><span class="legend-label">French Red Cross<br></span>';
+    return div;
+};
+
+
+legend.addTo(map);
+
 
 var distributionsLayer = L.geoJson().addTo(map);
 
@@ -69,6 +100,7 @@ function formatData() {
           "properties": {
               "mapper": place.mapper,
               "place_name": place['place_name'],
+              "partner": "",
               "totals": {}
           },
           "geometry": {
@@ -84,6 +116,7 @@ function formatData() {
   $.each(distributionsData, function(eventI, event){
     $.each(mapPoints, function(pointI, point){
       if(point.properties.mapper === event.mapper){
+        point.properties.partner = event['Cooperating Partner'];
         $.each(distributionItems, function(itemI, item){
           if(isNaN(parseInt(event[item], 10)) != true){
             point.properties.totals[item] += parseInt(event[item], 10);
@@ -95,13 +128,11 @@ function formatData() {
   addToMap();
 }
 
-var circleStyle = {
-  fillColor: '#ed1b2e',
-  color: '#ed1b2e'
-};
 
 function onMarker(feature, layer) {
-  var popupHtml = "<h4>" + feature.properties.place_name + '</h4><table class="popup-table"><tbody>';
+  var popupHtml = "<h4>" + feature.properties.place_name + '<br>' +
+    '<small>(supported by ' + feature.properties.partner + ')</small></h4>' +
+    '<table class="popup-table"><tbody>';
   $.each(feature.properties.totals, function(index, item){
     if(item > 0){
       popupHtml += '<tr><td class="item-count">' + formatCommas(item) + '</td>' +
@@ -130,12 +161,18 @@ function markerMouseout(e){
 function addToMap(){
   L.geoJson(mapPoints, {
     pointToLayer: function (feature, latlng) {
-        return L.circleMarker(latlng, circleStyle);
+        return L.circleMarker(latlng);
+    },
+    style: function(feature) {
+        switch (feature.properties.partner) {
+          case 'IFRC': return markerIfrc;
+          case 'French Red Cross': return markerFrench;
+        }
     },
     onEachFeature: onMarker
   }).addTo(distributionsLayer);
 
-  // zoomOut();
+  zoomOut();
 
 }
 
@@ -163,5 +200,12 @@ $(document).ready(function() {
 function zoomOut(){
   map.fitBounds(distributionsLayer.getBounds().pad(0.1,0.1));
 }
+
+// adjust map div height on screen resize
+$(window).resize(function(){
+  logoBarHeight = $("#logo-bar").height()
+  mapHeight = $(window).height() - logoBarHeight;
+  $("#map-container").height(mapHeight);
+});
 
 getData();
